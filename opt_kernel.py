@@ -47,7 +47,7 @@ class OptimizedKernel:
         # Loop through every Batch in every Epoch
         for epoch in range(self.n_epochs):
             epoch_loss = 0.0
-            if epoch % 10 == 0:
+            if epoch % 20 == 0:
                 print(self.A)
             for i in range(0, X.shape[0], self.batch_size):
                 # One Batch
@@ -76,7 +76,8 @@ class OptimizedKernel:
                 epoch_loss += loss.item()
 
             if flag_optim_verbose:
-                print(f'Epoch {epoch+1}/{self.n_epochs}, Loss: {epoch_loss:.6f}')
+                if epoch % 20 == 0:
+                    print(f'Epoch {epoch+1}/{self.n_epochs}, Loss: {epoch_loss:.6f}')
 
         # detach A so its no longer a tensor but a Numpy array again
         #self.A = self.A.detach()
