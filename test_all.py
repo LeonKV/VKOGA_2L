@@ -11,7 +11,7 @@ def generate_data(n_samples=500, n_features=3, n_targets=2):
     kernel = Matern(k=2)
     K = kernel.eval(X_transformed, X_transformed)
     # Y = K @ np.random.randn(n_samples, 2)
-    Y = np.dot(X, A_true) + 0.0 * np.random.randn(n_samples, n_features)  # Calculating A with optionally some noise
+    Y = np.dot(X, A_true) + 0.0 * np.random.randn(n_samples, n_features)  # Calculating A with some noise
     return X, Y, A_true
 
 # Initialize VKOGA_2L model (some Parameters are described in Page 123)
@@ -30,7 +30,7 @@ model = VKOGA_2L(
     batch_size=32
 )
 
-# Generate synthetic data
+# Generate data
 X, Y, A_true = generate_data(n_samples=500, n_features=3, n_targets=2)
 
 # Split into training and testing data
@@ -47,7 +47,7 @@ predictions = model.predict(X_test)
 print("Predictions:", predictions[:5])
 print("Ground truth:", y_test[:5])
 
-# Optionally, evaluate performance (e.g., mean squared error)
+# Evaluate performance
 mse = np.mean((predictions - y_test) ** 2)
 print(f"Mean Squared Error on Test Data: {mse:.6f}")
 

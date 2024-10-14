@@ -6,7 +6,8 @@ from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from scipy.spatial import distance_matrix
 import torch
-from opt_kernel import OptimizedKernel
+# from opt_kernel import OptimizedKernel
+from utilities import OptimizedKernel
 import pickle
 
 
