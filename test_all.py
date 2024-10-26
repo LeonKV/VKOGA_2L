@@ -2,21 +2,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from vkoga_2L import VKOGA_2L
-from kernels import Matern, Gaussian
+import tkernels
+import kernels
 
 def generate_data(n_samples=500, n_features=3, n_targets=2):
-    A_true = A_true = np.array([[2, -1, 0.5], [0.5, 1, -0.5], [1, 1, 2]])  # True transformation matrix to calc X and compare later to learned A
+    desired_A = np.array([[2, -1, 0.5], [0.5, 1, -0.5], [1, 1, 2]])  # True transformation matrix to calc X and compare later to learned A
     X = np.random.randn(n_samples, n_features)
-    X_transformed = X @ A_true
-    kernel = Matern(k=2)
-    K = kernel.eval(X_transformed, X_transformed)
+    X_transformed = X @ desired_A
+    # kernel = Matern(k=2)
+    # K = kernel.eval(X_transformed, X_transformed)
     # Y = K @ np.random.randn(n_samples, 2)
-    Y = np.dot(X, A_true) + 0.0 * np.random.randn(n_samples, n_features)  # Calculating A with some noise
-    return X, Y, A_true
+    Y = np.dot(X, desired_A) + 0.0 * np.random.randn(n_samples, n_features)  # Calculating A with some noise
+    return X, Y, desired_A
 
 # Initialize VKOGA_2L model (some Parameters are described in Page 123)
 model = VKOGA_2L(
-    kernel=[Matern(k=2), Matern(k=2)], # quadratic Matern kernel used
+    kernel=[kernels.Matern(k=2), tkernels.Matern(k=2)], # quadratic Matern kernel used
     flag_2L_optimization=True,
     verbose=True,
     greedy_type='f_greedy',
@@ -31,7 +32,7 @@ model = VKOGA_2L(
 )
 
 # Generate data
-X, Y, A_true = generate_data(n_samples=500, n_features=3, n_targets=2)
+X, Y, desired_A = generate_data(n_samples=500, n_features=3, n_targets=2)
 
 # Split into training and testing data
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
@@ -53,5 +54,5 @@ print(f"Mean Squared Error on Test Data: {mse:.6f}")
 
 print("learned A:")
 print(model.A)
-print("true A:")
-print(A_true)
+print("Desired A:")
+print(desired_A)

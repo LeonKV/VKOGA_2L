@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 from torch import nn
-from kernels import Kernel
+from tkernels import Kernel
 
 
 class OptimizedKernel(torch.nn.Module):
@@ -77,12 +77,15 @@ class OptimizedKernel(torch.nn.Module):
 
                 # Select minibatch from the data
                 ind = shuffle[idx_batch * self.batch_size : (idx_batch + 1) * self.batch_size]
-                Xb, yb = X[ind, :], y[ind, :]
+                if len(y.shape) == 1:
+                    Xb, yb = X[ind, :], y[ind]
+                else:
+                    Xb, yb = X[ind, :], y[ind, :]
 
                 # Compute kernel matrix for minibatch
-                # kernel_matrix = self.kernel.eval(Xb @ self.A, Xb @ self.A)
+                kernel_matrix = self.kernel.eval(Xb @ self.A, Xb @ self.A)
                 # kernel_matrix = self.kernel.eval(Xb @ torch.clone(self.A).detach().numpy(), Xb @ torch.clone(self.A).detach().numpy())
-                kernel_matrix = self.kernel_eval(Xb @ self.A, Xb @ self.A) # To avoid detach on self.A
+                # kernel_matrix = self.kernel_eval(Xb @ self.A, Xb @ self.A) # To avoid detach on self.A
 
                 # use cross validation loss via rippa to assess the error
                 optimization_objective, _ = compute_cv_loss_via_rippa_ext_2(
@@ -110,6 +113,8 @@ class OptimizedKernel(torch.nn.Module):
             if flag_optim_verbose:
                 print('Epoch {:5d} finished, mean training objective: {:.3e}.'.format(
                     idx_epoch + 1, mean_obj))
+                if idx_epoch % 100 == 0:
+                    print("Learned A:\n", self.A)
 
             self.list_obj.append(mean_obj)
 
