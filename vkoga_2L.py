@@ -19,10 +19,12 @@ class VKOGA_2L(BaseEstimator):
                  verbose=True, n_report=10,
                  greedy_type='f_greedy', reg_par=0, restr_par=0,
                  tol_f=1e-10, tol_p=1e-10,
-                 reg_para_optim=1e-3, learning_rate=5e-3, n_epochs_optim=10, batch_size=32):
+                 reg_para_optim=1e-3, learning_rate=5e-3, n_epochs_optim=10, batch_size=32,
+                 flag_optim_verbose=True):
         
         # Set the verbosity on/off
         self.verbose = verbose
+        self.flag_optim_verbose = flag_optim_verbose
         
         # Set the frequency of report
         self.n_report = n_report
@@ -150,10 +152,10 @@ class VKOGA_2L(BaseEstimator):
             model_OptimKernel = OptimizedKernel(kernel=self.kernel_t, dim=X.shape[1],
                                                 reg_para=self.reg_para_optim, learning_rate=self.learning_rate,
                                                 n_epochs=self.n_epochs_optim, batch_size=self.batch_size,
-                                                n_folds=None, flag_initialize_diagonal=False,
+                                                n_folds=None, flag_initialize_diagonal=True,
                                                 flag_symmetric_A=False)
             model_OptimKernel.optimize(torch.from_numpy(X).float(), torch.from_numpy(y).float(),
-                                       flag_optim_verbose=True)
+                                       flag_optim_verbose=self.flag_optim_verbose)
 
             self.A = model_OptimKernel.A.detach().numpy()
 
