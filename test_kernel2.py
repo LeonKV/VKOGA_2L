@@ -4,7 +4,7 @@ from utilities import OptimizedKernel
 from tkernels import Matern, Gaussian
 
 # Define the desired transformation matrix (self.A)
-desired_A = torch.tensor([[0.5, 0.0], [0.0, 2.0]])
+desired_A = torch.tensor([[3, 0.0], [0.0, 1]])
 
 # Generate random data
 X = torch.randn(1000, 2)
@@ -16,7 +16,7 @@ X_transformed = X @ desired_A
 y = X_transformed[:, 0] + X_transformed[:, 1] # + torch.randn(1000)
 
 # Init the model
-model = OptimizedKernel(kernel=Gaussian(), dim=X.shape[1], reg_para=1e-3, learning_rate=1e-3, n_epochs=1000, 
+model = OptimizedKernel(kernel=Gaussian(), dim=X.shape[1], reg_para=1e-6, learning_rate=1e-3, n_epochs=1000, 
                                                 flag_initialize_diagonal=True,
                                                 flag_symmetric_A=False)
 
