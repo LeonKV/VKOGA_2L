@@ -105,8 +105,8 @@ class VKOGA_2L(BaseEstimator):
 
     def fit(self, X, y, X_val=None, y_val=None, maxIter=None):
         
-        print(X.shape)
-        print(y.shape)
+        # print(X.shape)
+        # print(y.shape)
 
         # Check the datasets
         X, y = check_X_y(X, y, multi_output=True)

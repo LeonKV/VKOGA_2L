@@ -5,13 +5,28 @@ import torch
 from vkoga_2L import VKOGA_2L
 import tkernels
 import kernels
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from ucimlrepo import fetch_ucirepo
 
-def generate_data(n_samples=500, n_features=2, n_targets=1):
-    desired_A = torch.tensor([[0.5, 0.0], [0.0, 2.0]])  # True transformation matrix to calc X and compare later to learned A
-    X = torch.randn(n_samples, n_features)
-    X_transformed = X @ desired_A
-    y = X_transformed[:, 0] + X_transformed[:, 1] # + torch.randn(1000)
-    return X, y, desired_A
+
+# Fetch dataset
+parkinsons_telemonitoring = fetch_ucirepo(id=189)
+X = parkinsons_telemonitoring.data.features
+y = parkinsons_telemonitoring.data.targets
+
+# Preprocess Data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+y_scaled = scaler.fit_transform(y)
+
+X_train, X_test, y_train, y_test = train_test_split(X.to_numpy(), y.to_numpy(), test_size=0.2, random_state=None)
+
+# Convert to tensors
+X_train = torch.tensor(X_train, dtype=torch.float32)
+y_train = torch.tensor(y_train, dtype=torch.float32)
+X_test = torch.tensor(X_test, dtype=torch.float32)
+y_test = torch.tensor(y_test, dtype=torch.float32)
 
 # Initialize VKOGA_2L model (some Parameters are described in Page 123)
 model = VKOGA_2L(
@@ -29,12 +44,6 @@ model = VKOGA_2L(
     batch_size=32,
 )
 
-# Generate data
-X, Y, desired_A = generate_data(n_samples=500, n_features=2, n_targets=1)
-
-# Split into training and testing data
-X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-
 # Fit the model on training data
 print("Training the VKOGA_2L model with OptimizedKernel...")
 model.fit(X_train, y_train)
@@ -43,15 +52,12 @@ model.fit(X_train, y_train)
 predictions = model.predict(X_test)
 
 # Print some predictions and ground truth
-predictions = predictions.flatten()
 print("Predictions:", predictions[:5])
-print("Ground truth:", y_test[:5])
+print("Ground truth:", y_test.numpy()[:5])
+print(predictions.shape)
+print(y_test.numpy().shape)
 
+# predictions = predictions.flatten()
 # Print Error
 mse = np.mean((predictions - y_test.numpy()) ** 2)
 print(f"MSE on Test Data: {mse:.6f}")
-
-print("Learned A:")
-print(model.A)
-print("Desired A:")
-print(desired_A)
